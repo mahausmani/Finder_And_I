@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .forms import UserRegisterForm
+from .forms import UserRegisterForm, CreatePostForm
+from .models import Post
 from django.contrib.auth.decorators import login_required
 
 # Create your views here.
@@ -18,5 +19,19 @@ def register(request):
 
 @login_required
 def profile(request):
-    return render(request, 'users/profile.html')
-
+    user_posts = Post.objects.filter(author=request.user)
+    if request.method == 'POST':
+        form = CreatePostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            messages.success(request, 'Your post has been created!')
+            return redirect('profile')
+    else:
+        form = CreatePostForm()
+    context = {
+        'user_posts': user_posts,
+        'form': form
+    }
+    return render(request, 'users/profile.html', context)

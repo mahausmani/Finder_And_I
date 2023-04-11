@@ -7,3 +7,6 @@ class UserRegisterForm(UserCreationForm):
     class Meta:
         model = User
         fields = ['username', 'email', 'password1', 'password2']
+
+class CreatePostForm(forms.Form):
+    content = forms.CharField(widget=forms.Textarea)

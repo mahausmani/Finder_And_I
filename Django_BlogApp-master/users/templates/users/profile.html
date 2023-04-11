@@ -4,15 +4,23 @@
 {% block content %}
 <div class="content-section" >
     <div class="text-center mb-5">
-      <br>
-        
-        <img class="rounded-circle account-img" style="width: 200px; height: 200px; margin-right: 20px; margin-bottom: 20px;" src="https://picsum.photos/200">
-        <div class="box" >
-          <h2 style="font-size: 30px; margin-top: 10px;">{{ user.username }}</h2>
-          <p style="font-size: 18px; color: #666;">{{ user.email }}</p>
-      </div>    
-  </div>
+        <img class="rounded-circle account-img" src="https://picsum.photos/200">
+        <div class="box">
+            <h2>{{ user.username }}</h2>
+            <p>{{ user.email }}</p>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <textarea class="form-control" name="content" rows="3" placeholder="What's on your mind?" style= "resize:none;"></textarea>
+                <button class="mt-3" type="submit" style="background-color: #212529;">Post</button>
+            </form>
+        </div>
+    </div>
 </div>
+
 {% endblock content %}
 
 <style>
@@ -23,4 +31,37 @@
         flex-direction: column;
         height: 100vh;
     }
+
+    .account-img {
+        width: 200px;
+        height: 200px;
+        margin-right: 20px;
+        margin-bottom: 20px;
+    }
+
+    .box {
+        text-align: center;
+        font-size: 18px;
+        color: #666;
+    }
+
+    .card-header {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 50px;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    button {
+        margin-top: 1rem;
+        background-color:black;
+    }
+    .form-control {
+        border: none;
+        resize: none;
+    }
+
 </style>
