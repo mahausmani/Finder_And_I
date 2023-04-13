@@ -41,8 +41,9 @@ def profile(request):
 def post(request):
     if request.method == 'POST':
         content = request.POST.get('content')
+        image = request.FILES.get('image')
         if content:
-            post = Post.objects.create(content=content, author=request.user)
+            post = Post.objects.create(content=content, author=request.user, image=image)
             return redirect('home')
         
 def home(request):

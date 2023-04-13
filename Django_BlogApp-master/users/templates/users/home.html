@@ -6,8 +6,10 @@
             <div class="card-body">
                 <h5 class="card-title">{{ post.author.username }}</h5>
                 <p class="card-text">{{ post.content }}</p>
+                {% if post.image %}
+                    <img src="{{ post.image.url }}" class="img-fluid">
+                {% endif %}
             </div>
         </div>
     {% endfor %}
-    <h1>home content </h1>
 {% endblock content %}
