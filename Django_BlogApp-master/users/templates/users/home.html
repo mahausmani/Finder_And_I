@@ -1,0 +1,13 @@
+{% extends "users/base.html" %}
+
+{% block content %}
+    {% for post in posts %}
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ post.author.username }}</h5>
+                <p class="card-text">{{ post.content }}</p>
+            </div>
+        </div>
+    {% endfor %}
+    <h1>home content </h1>
+{% endblock content %}

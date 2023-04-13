@@ -4,7 +4,9 @@ from .forms import UserRegisterForm, CreatePostForm
 from .models import Post
 from django.contrib.auth.decorators import login_required
 
-# Create your views here.
+def about(request):
+    return render(request, 'users/about.html', {'title':'About'})
+
 def register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
@@ -35,3 +37,19 @@ def profile(request):
         'form': form
     }
     return render(request, 'users/profile.html', context)
+@login_required
+def post(request):
+    if request.method == 'POST':
+        content = request.POST.get('content')
+        if content:
+            post = Post.objects.create(content=content, author=request.user)
+            return redirect('home')
+        
+def home(request):
+    if request.method == 'POST':
+        content = request.POST['content']
+        post = Post(content=content, author=request.user)
+        post.save()
+
+    posts = Post.objects.all().order_by('-date_posted')
+    return render(request, 'users/home.html', {'posts': posts})
