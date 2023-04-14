@@ -1,12 +1,17 @@
-{% extends "blog/base.html" %}
+{% extends "users/base.html" %}
 {% load crispy_forms_tags %}
+
 {% block content %}
     <div class="content-section">
-        <form method="POST">
+        <form method="POST" action="{% url 'register' %}" enctype="multipart/form-data">
             {% csrf_token %}
             <fieldset class="form-group">
                 <legend class="border-bottom mb-4">Join Today</legend>
-                {{ form|crispy }}
+                {{ form.username|as_crispy_field }}
+                {{ form.email|as_crispy_field }}
+                {{ form.password1|as_crispy_field }}
+                {{ form.password2|as_crispy_field }}
+                {{ form.profile_picture|as_crispy_field }}
             </fieldset>
             <div class="form-group">
                 <button class="btn btn-outline-info" type="submit">Sign Up</button>

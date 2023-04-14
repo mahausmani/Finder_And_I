@@ -1,27 +1,56 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import UserRegisterForm, CreatePostForm
-from .models import Post
+from .models import Post, Profile
 from django.contrib.auth.decorators import login_required
+
 
 def about(request):
     return render(request, 'users/about.html', {'title':'About'})
 
+# def register(request):
+#     if request.method == 'POST':
+#         form = UserRegisterForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             username = form.cleaned_data.get('username')
+#             messages.success(request, f'Your account has been created. You can now login')
+#             return redirect('login')
+#     else:
+#         form = UserRegisterForm()
+#     return render(request, 'users/register.html', {'form': form})
+
 def register(request):
     if request.method == 'POST':
-        form = UserRegisterForm(request.POST)
+        form = UserRegisterForm(request.POST, request.FILES) # add request.FILES to handle uploaded files
         if form.is_valid():
-            form.save()
+            user = form.save()
             username = form.cleaned_data.get('username')
-            messages.success(request, f'Your account has been created. You can now login')
+            messages.success(request, f'Your account has been created! You are now able to log in')
+            
+            profile = Profile(user=user)
+            
+            if 'profile_picture' in request.FILES:
+                profile.profile_picture = request.FILES['profile_picture']
+                
+            profile.save() # save the profile object
+            
             return redirect('login')
     else:
         form = UserRegisterForm()
     return render(request, 'users/register.html', {'form': form})
 
+
+@login_required
+def post(request):
+    if request.method == 'POST':
+        content = request.POST.get('content')
+        image = request.FILES.get('image')
+        if content:
+            post = Post.objects.create(content=content, author=request.user, image=image)
+            return redirect('home')
 @login_required
 def profile(request):
-    user_posts = Post.objects.filter(author=request.user)
     if request.method == 'POST':
         form = CreatePostForm(request.POST)
         if form.is_valid():
@@ -32,19 +61,11 @@ def profile(request):
             return redirect('profile')
     else:
         form = CreatePostForm()
-    context = {
-        'user_posts': user_posts,
-        'form': form
-    }
-    return render(request, 'users/profile.html', context)
-@login_required
-def post(request):
-    if request.method == 'POST':
-        content = request.POST.get('content')
-        image = request.FILES.get('image')
-        if content:
-            post = Post.objects.create(content=content, author=request.user, image=image)
-            return redirect('home')
+    
+    profile = Profile.objects.get(user=request.user)
+    posts = Post.objects.filter(author=request.user).order_by('-date_posted')
+    return render(request, 'users/profile.html',  {'posts': posts, 'profile': profile})
+
         
 def home(request):
     if request.method == 'POST':
@@ -54,3 +75,13 @@ def home(request):
 
     posts = Post.objects.all().order_by('-date_posted')
     return render(request, 'users/home.html', {'posts': posts})
+
+@login_required
+def delete_post(request, post_id):
+    post = Post.objects.get(pk=post_id)
+    if post.author == request.user:
+        post.delete()
+        messages.success(request, 'Your post has been deleted!')
+    else:
+        messages.error(request, 'You are not authorized to delete this post.')
+    return redirect('profile')
