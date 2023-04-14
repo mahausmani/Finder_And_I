@@ -4,7 +4,14 @@
     {% for post in posts %}
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">{{ post.author.username }}</h5>
+                <div class="d-flex align-items-center">
+                    {% if post.author.profile.profile_picture %}
+                        <img src="{{ post.author.profile.profile_picture.url }}" class="rounded-circle mr-3" style="width: 50px; height: 50px;">
+                    {% else %}
+                        <div class="rounded-circle mr-3" style="background-color: #ce5ea3; width: 50px; height: 50px;"></div>
+                    {% endif %}
+                    <h5 class="card-title">{{ post.author.username }}</h5>
+                </div>
                 <p class="card-text">{{ post.content }}</p>
                 {% if post.image %}
                     <img src="{{ post.image.url }}" class="img-fluid">

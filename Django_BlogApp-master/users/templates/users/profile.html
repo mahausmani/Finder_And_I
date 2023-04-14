@@ -4,7 +4,6 @@
 {% block content %}
 <div class="content-section" >
     <div class="text-center mb-5">
-        <h5>a</h5>
         {% if profile.profile_picture %}
             <img class="rounded-circle account-img" src="{{ profile.profile_picture.url}}">
             
@@ -14,8 +13,8 @@
         {% endif %}
 
         <div class="box">
-            <h2>{{ profile.username }}</h2>
-            <p>{{ profile.email }}</p>
+            <h2>{{ user.username }}</h2>
+            <p>{{ user.email }}</p>
         </div>
     </div>
     <div class="card">
