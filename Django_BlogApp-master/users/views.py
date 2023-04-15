@@ -1,24 +1,13 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .forms import UserRegisterForm, CreatePostForm
 from .models import Post, Profile
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 
 
 def about(request):
     return render(request, 'users/about.html', {'title':'About'})
-
-# def register(request):
-#     if request.method == 'POST':
-#         form = UserRegisterForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             username = form.cleaned_data.get('username')
-#             messages.success(request, f'Your account has been created. You can now login')
-#             return redirect('login')
-#     else:
-#         form = UserRegisterForm()
-#     return render(request, 'users/register.html', {'form': form})
 
 def register(request):
     if request.method == 'POST':
@@ -49,6 +38,7 @@ def post(request):
         if content:
             post = Post.objects.create(content=content, author=request.user, image=image)
             return redirect('home')
+        
 @login_required
 def profile(request):
     if request.method == 'POST':
@@ -85,3 +75,25 @@ def delete_post(request, post_id):
     else:
         messages.error(request, 'You are not authorized to delete this post.')
     return redirect('profile')
+
+def search(request):
+    query = request.GET.get('q')
+    results = []
+    if query is not None:
+        results = Profile.objects.filter(user__username__icontains=query)
+    context = {
+        'results': results,
+        'query': query
+    }
+    return render(request, 'users/search_results.html', context)
+
+@login_required
+def user_profile(request, username):
+    user_profile = get_object_or_404(Profile, user__username=username)
+    posts = Post.objects.filter(author=user_profile.user).order_by('-date_posted')
+    context = {
+        'user_profile': user_profile,
+        'posts': posts
+    }
+    return render(request, 'users/user_profile.html', context)
+    

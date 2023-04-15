@@ -1,0 +1,22 @@
+{% extends 'users/base.html' %}
+
+{% block content %}
+
+<h2>Search Results for "{{ query }}"</h2>
+<ul style="list-style: none;">
+{% for result in results %}
+
+    <li class="m-5">
+        <div style="display: inline-block; vertical-align: middle; margin-right: 10px;">
+            <img src="{{ result.profile_picture.url }}" alt="{{ result.user.username }}'s profile picture" style="border-radius: 50%; height: 50px; width: 50px;">
+        </div>
+        <div style="display: inline-block; vertical-align: middle;">
+            <a href="{% url 'user_profile' result.user.username %}" style="color: #ce5ea3; text-decoration: none; font-size: 1.5em;">{{ result.user.username }}</a>
+        </div>
+    </li>
+{% empty %}
+    <p>No results found.</p>
+{% endfor %}
+</ul>
+
+{% endblock %}
