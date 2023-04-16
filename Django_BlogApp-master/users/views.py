@@ -4,6 +4,8 @@ from .forms import UserRegisterForm, CreatePostForm
 from .models import Post, Profile
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login
+from django.urls import reverse
 
 
 def about(request):

@@ -1,0 +1,3 @@
+To use login with google option:
+1- pip install django-allauth
+2- to add the 'allauth' and 'allauth.account' apps to INSTALLED_APPS in 1- settings.py file
