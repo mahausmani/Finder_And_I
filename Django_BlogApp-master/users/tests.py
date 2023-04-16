@@ -5,51 +5,51 @@ from django.urls import reverse
 from users.models import Profile,Post
 from users.forms import UserRegisterForm, CreatePostForm
 
-# class RegisterViewTestCase(TestCase):
-#     def setUp(self):
-#         self.client = Client()
-#         self.url = reverse('register')
+class RegisterViewTestCase(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.url = reverse('register')
 
-#         self.username = 'testuser'
-#         self.email = 'testuser@example.com'
-#         self.password = 'testpassword'
+        self.username = 'testuser'
+        self.email = 'testuser@example.com'
+        self.password = 'testpassword'
 
-#         self.valid_data = {
-#             'username': self.username,
-#             'email': self.email,
-#             'password1': self.password,
-#             'password2': self.password,
-#         }
+        self.valid_data = {
+            'username': self.username,
+            'email': self.email,
+            'password1': self.password,
+            'password2': self.password,
+        }
 
-#     def test_register_view_with_valid_data(self):
-#         response = self.client.post(self.url, data=self.valid_data)
+    def test_register_view_with_valid_data(self):
+        response = self.client.post(self.url, data=self.valid_data)
         
-#         user_exists = User.objects.filter(username=self.username).exists()
-#         self.assertTrue(user_exists, msg="User should have been created")
+        user_exists = User.objects.filter(username=self.username).exists()
+        self.assertTrue(user_exists, msg="User should have been created")
 
-#         # check profile was created
-#         user = User.objects.get(username=self.username)
-#         profile_exists = Profile.objects.filter(user=user).exists()
-#         self.assertTrue(profile_exists, msg="Profile should have been created")
+        # check profile was created
+        user = User.objects.get(username=self.username)
+        profile_exists = Profile.objects.filter(user=user).exists()
+        self.assertTrue(profile_exists, msg="Profile should have been created")
 
-#         self.assertEqual(response.status_code, 302) #check if it was redirected to another url after the form was posted
-#         print("Redirecting to:", reverse('login'))
-#         self.assertRedirects(response, reverse('login'))
+        self.assertEqual(response.status_code, 302) #check if it was redirected to another url after the form was posted
+        print("Redirecting to:", reverse('login'))
+        self.assertRedirects(response, reverse('login'))
 
-#     def test_register_view_with_invalid_data(self):
-#         invalid_data = self.valid_data.copy()
-#         invalid_data['username'] = ''  # set username to empty string to make form invalid
-#         response = self.client.post(self.url, data=invalid_data)
-#         self.assertEqual(response.status_code, 200)
-#         self.assertTemplateUsed(response, 'users/register.html')
-#         self.assertFalse(User.objects.filter(username=self.username).exists())
-#         self.assertFalse(Profile.objects.filter(user__username=self.username).exists())
+    def test_register_view_with_invalid_data(self):
+        invalid_data = self.valid_data.copy()
+        invalid_data['username'] = ''  # set username to empty string to make form invalid
+        response = self.client.post(self.url, data=invalid_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/register.html')
+        self.assertFalse(User.objects.filter(username=self.username).exists())
+        self.assertFalse(Profile.objects.filter(user__username=self.username).exists())
 
-#     def test_register_view_get_request(self):
-#         response = self.client.get(self.url)
-#         self.assertEqual(response.status_code, 200)
-#         self.assertIsInstance(response.context['form'], UserRegisterForm)
-#         self.assertTemplateUsed(response, 'users/register.html')
+    def test_register_view_get_request(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response.context['form'], UserRegisterForm)
+        self.assertTemplateUsed(response, 'users/register.html')
 
 
 
