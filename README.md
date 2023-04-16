@@ -4,6 +4,12 @@ This is a simple application that helps you locate your friends on campus.
 
 It is built using Django
 
+# Finder_And_I
+
+This is a simple application that helps you locate your friends on campus.
+
+It is built using Django
+
 HOW TO RUN THE WEBSITE!!!!!
 # IN COMMAND PROMPT DO THIS (to activate virtual environment):
 myworld\Scripts\activate.bat
