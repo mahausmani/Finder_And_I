@@ -5,11 +5,9 @@
 <div class="content-section" >
     <div class="text-center mb-5">
         {% if profile.profile_picture %}
-            <img class="rounded-circle account-img" src="{{ profile.profile_picture.url}}">
-            
+        <img class="rounded-circle account-img" src="{{ profile.profile_picture.url}}">
         {% else %}
-            <!-- <div class="rounded-circle account-img" style="background-color: #ce5ea3; width: 200px; height: 200px;"></div> -->
-            <img class="rounded-circle account-img" src="{{ profile.profile_picture.url | default:'#' }}">
+            <div class="rounded-circle account-img" style="background-color: #ce5ea3; width: 200px; height: 200px;"></div>
         {% endif %}
 
         <div class="box">
