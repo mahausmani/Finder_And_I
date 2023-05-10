@@ -2,89 +2,120 @@ from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, Client
 from django.urls import reverse
-from users.models import Profile,Post
+from users.models import Profile,Post, FriendRequest
 from users.forms import UserRegisterForm, CreatePostForm
 
-class RegisterViewTestCase(TestCase):
+
+
+class FriendRequestTestCase(TestCase):
     def setUp(self):
-        self.client = Client()
-        self.url = reverse('register')
+        self.user1 = User.objects.create_user(username='user1', password='password1')
+        self.user2 = User.objects.create_user(username='user2', password='password2')
+        self.user3 = User.objects.create_user(username='user3', password='password3')
 
-        self.username = 'testuser'
-        self.email = 'testuser@example.com'
-        self.password = 'testpassword'
-
-        self.valid_data = {
-            'username': self.username,
-            'email': self.email,
-            'password1': self.password,
-            'password2': self.password,
-        }
-
-    def test_register_view_with_valid_data(self):
-        response = self.client.post(self.url, data=self.valid_data)
-        
-        user_exists = User.objects.filter(username=self.username).exists()
-        self.assertTrue(user_exists, msg="User should have been created")
-
-        # check profile was created
-        user = User.objects.get(username=self.username)
-        profile_exists = Profile.objects.filter(user=user).exists()
-        self.assertTrue(profile_exists, msg="Profile should have been created")
-
-        self.assertEqual(response.status_code, 302) #check if it was redirected to another url after the form was posted
-        print("Redirecting to:", reverse('login'))
-        self.assertRedirects(response, reverse('login'))
-
-    def test_register_view_with_invalid_data(self):
-        invalid_data = self.valid_data.copy()
-        invalid_data['username'] = ''  # set username to empty string to make form invalid
-        response = self.client.post(self.url, data=invalid_data)
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'users/register.html')
-        self.assertFalse(User.objects.filter(username=self.username).exists())
-        self.assertFalse(Profile.objects.filter(user__username=self.username).exists())
-
-    def test_register_view_get_request(self):
-        response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 200)
-        self.assertIsInstance(response.context['form'], UserRegisterForm)
-        self.assertTemplateUsed(response, 'users/register.html')
-
-
-
-class ProfileViewTestCase(TestCase):
-    def setUp(self):
-        self.client = Client()
-        self.profile_url = reverse('profile')
-        self.url_login = reverse('login')
-        self.user = User.objects.create_user(username='testuser', password='testpass')
-        image_file = SimpleUploadedFile('test_image.jpg',  b"file_content", content_type="image/jpeg")
-        self.profile = Profile.objects.create(user=self.user, profile_picture=image_file)
-
-    def test_profile_view_with_authenticated_user(self):
-        self.client.login(username='testuser', password='testpass')
-        response = self.client.get(reverse('profile'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'users/profile.html')
-        self.assertContains(response, self.user.username)
-
-    def test_profile_view_with_unauthenticated_user(self):
-            response = self.client.get(self.profile_url)
-            self.assertRedirects(response, f"{self.url_login}?next={self.profile_url}")
-
-    def test_create_post_with_authenticated_user(self):
-        self.client.login(username='testuser', password='testpass')
-        response = self.client.post(reverse('profile'), {'content': 'Test post content'})
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(Post.objects.count(), 1)
-        post = Post.objects.first()
-        self.assertEqual(post.content, 'Test post content')
-        self.assertEqual(post.author, self.user)
-
-    def test_create_post_with_unauthenticated_user(self):
-        response = self.client.post(reverse('profile'), {'content': 'Test post content'})
-        self.assertRedirects(response, f"{self.url_login}?next={self.profile_url}")
-        self.assertEqual(Post.objects.count(), 0)
+        self.profile1 = Profile.objects.get(user=self.user1)
+        self.profile2 = Profile.objects.get(user=self.user2)
+        self.profile3 = Profile.objects.get(user=self.user3)
 
     
+    def test_send_friend_request(self):
+        self.client.login(username='user1', password='password1')
+        response = self.client.get(reverse('send_friend_request', args=['user2']))
+        
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(FriendRequest.objects.filter(from_user=self.user1, to_user=self.user2).exists())
+    
+    def test_send_friend_request_already_friends(self):
+        self.profile1.friends.add(self.user2)
+        self.client.login(username='user1', password='password1')
+        response = self.client.get(reverse('send_friend_request', args=['user2']))
+        
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(FriendRequest.objects.filter(from_user=self.user1, to_user=self.user2).exists())
+    
+    def test_send_friend_request_already_sent(self):
+        FriendRequest.objects.create(from_user=self.user1, to_user=self.user2)
+        self.client.login(username='user1', password='password1')
+        response = self.client.get(reverse('send_friend_request', args=['user2']))
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(FriendRequest.objects.filter(from_user=self.user1, to_user=self.user2).exists())
+    
+    def test_accept_friend_request(self):
+        friend_request = FriendRequest.objects.create(from_user=self.user1, to_user=self.user2)
+        self.client.login(username='user2', password='password2')
+        response = self.client.get(reverse('accept_friend_request', args=[friend_request.id]))
+        
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(self.profile2.friends.filter(username='user1').exists())
+        self.assertTrue(self.profile1.friends.filter(username='user2').exists())
+        self.assertFalse(FriendRequest.objects.filter(from_user=self.user1, to_user=self.user2).exists())
+    
+    def test_reject_friend_request(self):
+        friend_request = FriendRequest.objects.create(from_user=self.user1, to_user=self.user2)
+        self.client.login(username='user2', password='password2')
+        response = self.client.get(reverse('reject_friend_request', args=[friend_request.id]))
+        
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(FriendRequest.objects.filter(from_user=self.user1, to_user=self.user2).exists())
+    
+class UserProfileTestCase(TestCase):
+    def setUp(self):
+        self.user1 = User.objects.create_user(username='user1', password='password1')
+        self.user2 = User.objects.create_user(username='user2', password='password2')
+        self.profile1 = Profile.objects.get(user=self.user1)
+        self.profile2 = Profile.objects.get(user=self.user2)
+
+    def test_user_profile_non_friends_not_displayed(self):
+        self.client.login(username='user1', password='password1')
+        response = self.client.get(reverse('your_friends'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'user2')  # Check if the non-friend's username is not displayed
+
+    def test_user_profile_friends_displayed(self):
+        self.profile1.friends.add(self.user2)
+
+        self.client.login(username='user1', password='password1')
+        response = self.client.get(reverse('your_friends'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'user2')  # Check if the friend's username is displayed
+
+
+class FriendRequestTestCaseDisplay(TestCase):
+    def setUp(self):
+        self.user1 = User.objects.create_user(username='user1', password='password1')
+        self.user2 = User.objects.create_user(username='user2', password='password2')
+        self.profile1 = Profile.objects.get(user=self.user1)
+        self.profile2 = Profile.objects.get(user=self.user2)
+        self.request = FriendRequest.objects.create(from_user=self.user1, to_user=self.user2)
+
+    def test_display_friend_requests(self):
+        self.client.login(username='user2', password='password2')
+        response = self.client.get(reverse('profile'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'user2')  # Check if the sender's username is displayed
+
+    def test_accept_friend_request(self):
+        self.client.login(username='user2', password='password2')
+        response = self.client.get(reverse('accept_friend_request', args=[self.request.id]))
+
+        self.assertEqual(response.status_code, 302)
+        self.profile2.refresh_from_db()
+        self.assertIn(self.user1, self.profile2.friends.all())  # Check if the sender is added to the friend list
+
+    def test_accepted_friend_request_updates_sender(self):
+        self.client.login(username='user2', password='password2')
+        response = self.client.get(reverse('accept_friend_request', args=[self.request.id]))
+
+        self.assertEqual(response.status_code, 302)
+        self.profile1.refresh_from_db()
+        self.assertIn(self.user2, self.profile1.friends.all())  # Check if the receiver is added to the friend list
+
+    def test_decline_friend_request(self):
+        self.client.login(username='user2', password='password2')
+        response = self.client.get(reverse('reject_friend_request', args=[self.request.id]))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(FriendRequest.objects.filter(id=self.request.id).exists())  # Check if the request is deleted

@@ -34,22 +34,6 @@ def reject_friend_request(request, request_id):
     friend_request.delete()
     return redirect('home')
 
-# @login_required
-# def unfriend(request, username):
-#     friend = User.objects.get(username=username)
-#     profile = Profile.objects.get(user=request.user)
-#     profile.friends.remove(friend)
-#     return redirect('your_friends')
-
-# @login_required
-# def unfriend(request, username):
-#     friend = User.objects.get(username=username)
-#     profile = User.objects.get(username=request.user.username)
-#     user_profile = Profile.objects.get(user=profile)
-#     friend_profile = Profile.objects.get(user=friend)
-#     user_profile.friends.remove(friend)
-#     friend_profile.friends.remove(profile)
-#     return redirect('your_friends')
 
 @login_required
 def unfriend(request, username):

@@ -8,7 +8,7 @@ class Profile(models.Model):
     friends = models.ManyToManyField(User, related_name='friends')
     def __str__(self):
         return f'{self.user.username} Profile'
-    
+     
 class Post(models.Model):
     content = models.TextField()
     date_posted = models.DateTimeField(default=timezone.now)
