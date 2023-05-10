@@ -1,0 +1,28 @@
+{% extends 'users/base.html' %}
+
+{% block content %}
+<h1>Pending Friend Requests</h1>
+
+{% if friend_requests %}
+<ul>
+{% for request in friend_requests %}
+  <li>
+    <p>{{ request.from_user }} wants to be your friend!</p>
+   
+    <form method="post" action="{% url 'accept_friend_request' request_id=request.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success">Accept</button>
+      </form>
+      
+    <form method="post" action="{% url 'reject_friend_request' request_id=request.pk %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Decline</button>
+    </form>
+  </li>
+{% endfor %}
+</ul>
+{% else %}
+<p>No pending friend requests.</p>
+{% endif %}
+
+{% endblock %}

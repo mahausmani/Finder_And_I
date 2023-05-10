@@ -1,5 +1,7 @@
 {% extends 'users/base.html' %}
 
+{% load static %}
+
 {% block content %}
 
 <h2>Search Results for "{{ query }}"</h2>
@@ -8,7 +10,11 @@
 
     <li class="m-5">
         <div style="display: inline-block; vertical-align: middle; margin-right: 10px;">
-            <img src="{{ result.profile_picture.url }}" alt="{{ result.user.username }}'s profile picture" style="border-radius: 50%; height: 50px; width: 50px;">
+            {% if result.profile_picture %}
+                <img src="{{ result.profile_picture.url }}" alt="{{ result.user.username }}'s profile picture" style="border-radius: 50%; height: 50px; width: 50px;">
+            {% else %}
+                <img src="{% static 'users/default_profile_picture.png' %}" alt="{{ result.user.username }}'s default profile picture" style="border-radius: 50%; height: 50px; width: 50px;">
+            {% endif %}
         </div>
         <div style="display: inline-block; vertical-align: middle;">
             <a href="{% url 'user_profile' result.user.username %}" style="color: #ce5ea3; text-decoration: none; font-size: 1.5em;">{{ result.user.username }}</a>

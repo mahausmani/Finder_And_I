@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .forms import UserRegisterForm, CreatePostForm
-from .models import Post, Profile
+from .models import Post, Profile, FriendRequest
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
@@ -9,6 +9,59 @@ from django.urls import reverse
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
+
+from django.shortcuts import get_object_or_404, redirect
+
+def send_friend_request(request, username):
+    to_user = get_object_or_404(User, username=username)
+    friend_request = FriendRequest(from_user=request.user, to_user=to_user)
+    friend_request.save()
+    return redirect('user_profile', username=username)
+
+def accept_friend_request(request, request_id):
+    friend_request = get_object_or_404(FriendRequest, id=request_id)
+    if friend_request.to_user != request.user:
+        return redirect('home')
+    friend_request.from_user.profile.friends.add(friend_request.to_user)
+    friend_request.to_user.profile.friends.add(friend_request.from_user)
+    friend_request.delete()
+    return redirect('home')
+
+def reject_friend_request(request, request_id):
+    friend_request = get_object_or_404(FriendRequest, id=request_id)
+    if friend_request.to_user != request.user:
+        return redirect('home')
+    friend_request.delete()
+    return redirect('home')
+
+# @login_required
+# def unfriend(request, username):
+#     friend = User.objects.get(username=username)
+#     profile = Profile.objects.get(user=request.user)
+#     profile.friends.remove(friend)
+#     return redirect('your_friends')
+
+@login_required
+def unfriend(request, username):
+    friend = User.objects.get(username=username)
+    profile = User.objects.get(username=request.user.username)
+    user_profile = Profile.objects.get(user=profile)
+    friend_profile = Profile.objects.get(user=friend)
+    user_profile.friends.remove(friend)
+    friend_profile.friends.remove(profile)
+    return redirect('your_friends')
+
+@login_required
+def your_friends(request):
+    profile = Profile.objects.get(user=request.user)
+    friends = profile.friends.all()
+    return render(request, 'users/your_friends.html', {'friends': friends})
+    
+
+@login_required
+def friend_requests(request):
+    friend_requests = FriendRequest.objects.filter(to_user=request.user)
+    return render(request, 'users/friend_requests.html', {'friend_requests': friend_requests})
 
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, **kwargs):

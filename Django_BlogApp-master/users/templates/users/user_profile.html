@@ -16,7 +16,9 @@
             <h2>{{ user_profile.user.username }}</h2>
             <p>{{ user_profile.user.email }}</p>
         </div>
-        <button class="post-btn m-3 pr-3 pl-3">Add Friend</button>
+        <!-- <button class="post-btn m-3 pr-3 pl-3">Add Friend</button> -->
+        <a href="{% url 'send_friend_request' username=user_profile.user.username %}" class="post-btn">Add Friend</a>
+
     </div>
    
 </div>

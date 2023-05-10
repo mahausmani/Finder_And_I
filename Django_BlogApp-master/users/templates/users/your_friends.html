@@ -1,0 +1,17 @@
+{% extends 'users/base.html' %}
+
+{% block content %}
+  <h1>Your friends:</h1>
+  <ul>
+    {% for friend in friends %}
+      <li>{{ friend }}</li>
+      <form action="{% url 'unfriend' friend %}" method="post" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Unfriend</button>
+      </form>
+    {% empty %}
+      <li>You don't have any friends yet.</li>
+    {% endfor %}
+  </ul>
+    </ul>
+{% endblock %}
