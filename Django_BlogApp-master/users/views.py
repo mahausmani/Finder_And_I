@@ -41,14 +41,23 @@ def reject_friend_request(request, request_id):
 #     profile.friends.remove(friend)
 #     return redirect('your_friends')
 
+# @login_required
+# def unfriend(request, username):
+#     friend = User.objects.get(username=username)
+#     profile = User.objects.get(username=request.user.username)
+#     user_profile = Profile.objects.get(user=profile)
+#     friend_profile = Profile.objects.get(user=friend)
+#     user_profile.friends.remove(friend)
+#     friend_profile.friends.remove(profile)
+#     return redirect('your_friends')
+
 @login_required
 def unfriend(request, username):
-    friend = User.objects.get(username=username)
-    profile = User.objects.get(username=request.user.username)
-    user_profile = Profile.objects.get(user=profile)
+    friend = get_object_or_404(User, username=username)
+    profile = Profile.objects.get(user=request.user)
     friend_profile = Profile.objects.get(user=friend)
-    user_profile.friends.remove(friend)
-    friend_profile.friends.remove(profile)
+    profile.friends.remove(friend)
+    friend_profile.friends.remove(request.user)
     return redirect('your_friends')
 
 @login_required
@@ -114,7 +123,6 @@ def profile(request):
             return redirect('profile')
     else:
         form = CreatePostForm()
-    
     profile = Profile.objects.get(user=request.user)
     posts = Post.objects.filter(author=request.user).order_by('-date_posted')
     return render(request, 'users/profile.html',  {'posts': posts, 'profile': profile})
@@ -150,13 +158,28 @@ def search(request):
     }
     return render(request, 'users/search_results.html', context)
 
+# @login_required
+# def user_profile(request, username):
+#     user_profile = get_object_or_404(Profile, user__username=username)
+#     posts = Post.objects.filter(author=user_profile.user).order_by('-date_posted')
+#     context = {
+#         'user_profile': user_profile,
+#         'posts': posts,
+#     }
+#     return render(request, 'users/user_profile.html', context)
+
 @login_required
 def user_profile(request, username):
-    user_profile = get_object_or_404(Profile, user__username=username)
-    posts = Post.objects.filter(author=user_profile.user).order_by('-date_posted')
+    user = get_object_or_404(User, username=username)
+    user_profile = Profile.objects.get(user=user)
+    friend_request_sent = FriendRequest.objects.filter(from_user=request.user, to_user=user).exists()
+    posts = Post.objects.filter(author=user)
+
     context = {
         'user_profile': user_profile,
-        'posts': posts
+        'posts': posts,
+        'friend_request_sent': friend_request_sent
     }
     return render(request, 'users/user_profile.html', context)
+
     

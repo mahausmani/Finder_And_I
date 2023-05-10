@@ -15,6 +15,7 @@
             {% else %}
                 <img src="{% static 'users/default_profile_picture.png' %}" alt="{{ result.user.username }}'s default profile picture" style="border-radius: 50%; height: 50px; width: 50px;">
             {% endif %}
+            
         </div>
         <div style="display: inline-block; vertical-align: middle;">
             <a href="{% url 'user_profile' result.user.username %}" style="color: #ce5ea3; text-decoration: none; font-size: 1.5em;">{{ result.user.username }}</a>

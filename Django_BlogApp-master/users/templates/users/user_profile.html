@@ -2,13 +2,11 @@
 {% load crispy_forms_tags %}
 {% load static %}
 {% block content %}
-<div class="content-section" >
+<div class="content-section">
     <div class="text-center mb-5">
         {% if user_profile.profile_picture %}
             <img class="rounded-circle account-img" src="{{ user_profile.profile_picture.url}}">
-            
         {% else %}
-            <!-- <div class="rounded-circle account-img" style="background-color: #ce5ea3; width: 200px; height: 200px;"></div> -->
             <img class="rounded-circle account-img" src="{{ user_profile.profile_picture.url | default:'#' }}">
         {% endif %}
 
@@ -16,27 +14,29 @@
             <h2>{{ user_profile.user.username }}</h2>
             <p>{{ user_profile.user.email }}</p>
         </div>
-        <!-- <button class="post-btn m-3 pr-3 pl-3">Add Friend</button> -->
-        <a href="{% url 'send_friend_request' username=user_profile.user.username %}" class="post-btn">Add Friend</a>
-
+        
+        {% if friend_request_sent %}
+            <button class="post-btn m-3 pr-3 pl-3" disabled>Add Friend</button>
+            <p>Friend request sent</p>
+        {% else %}
+            <a href="{% url 'send_friend_request' username=user_profile.user.username %}" class="post-btn">Add Friend</a>
+        {% endif %}
     </div>
-   
 </div>
 
-    <h3 style="color: #ce5ea3;">{{user_profile.user.username}}'s Posts</h3>
-    {% for post in posts %}
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">{{ post.author.username }}</h5>
-                <p class="card-text">{{ post.content }}</p>
-                {% if post.image %}
-                    <img src="{{ post.image.url }}" class="img-fluid">
-                {% endif %}
-            </div>
+<h3 style="color: #ce5ea3;">{{ user_profile.user.username }}'s Posts</h3>
+{% for post in posts %}
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ post.author.username }}</h5>
+            <p class="card-text">{{ post.content }}</p>
+            {% if post.image %}
+                <img src="{{ post.image.url }}" class="img-fluid">
+            {% endif %}
         </div>
-    {% endfor %}
-    
-</div>
+    </div>
+{% endfor %}
+
 <style>
     .post-btn {
         background-color: #ce5ea3;
