@@ -16,8 +16,10 @@
         </div>
         
         {% if friend_request_sent %}
-            <button class="post-btn m-3 pr-3 pl-3" disabled>Add Friend</button>
+            <!-- <button class="post-btn m-3 pr-3 pl-3" disabled>Add Friend</button> -->
             <p>Friend request sent</p>
+        {% elif user_profile.user in request.user.profile.friends.all%}
+            <p>Already friends with this user</p>
         {% else %}
             <a href="{% url 'send_friend_request' username=user_profile.user.username %}" class="post-btn">Add Friend</a>
         {% endif %}
