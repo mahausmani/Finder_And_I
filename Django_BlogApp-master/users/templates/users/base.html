@@ -1,120 +1,137 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    
-    <!-- <link rel="stylesheet" href="Django_BlogApp-master\users\static\main.css"> -->
-    <link rel="stylesheet" href="{% static 'main.css' %}">
-    <link rel="stylesheet" href="{% static 'home.css' %}">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-    {% if title %}
-        <title>Finder and I- {{ title }}</title>
-    {% else %}
-        <title>Finder and I</title>
-    {% endif %}
+  <!-- <link rel="stylesheet" href="Django_BlogApp-master\users\static\main.css"> -->
+  <link rel="stylesheet" href="{% static 'main.css' %}">
+  <link rel="stylesheet" href="{% static 'home.css' %}">
+
+  {% if title %}
+  <title>Finder and I- {{ title }}</title>
+  {% else %}
+  <title>Finder and I</title>
+  {% endif %}
 </head>
+
 <body>
-    <nav class="navbar navbar-expand-lg" style="background-color: #d190b8; color: white;">
-        <a class="navbar-brand" href="">Finder and I</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarText">
-          <ul class="navbar-nav mr-auto">
-           
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'about'%}">About</a>
-            </li>
-            {% if user.is_authenticated %}
-            <li class="nav-item active">
-              <a class="nav-link" href="{% url 'home'%}">Home <span class="sr-only">(current)</span></a>
-            </li>
-            {% if user.profile%}
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'profile' %}">Profile</a>
-            </li>
-            {%endif%}
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-            </li>
-            {% else %}
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'login' %}">Login</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'register' %}">Register</a>
-            </li>
-          
-            {% endif %}
-          </ul>
-          {% if user.is_authenticated %}
-          <form class="ml-auto d-flex" role="search" id="search-form" method="get" action="{% url 'search' %}">
-            <input class="form-control mr-2" type="search" placeholder="Search" name="q" aria-label="Search">
-            <button class="btn search-btn" type="submit">Find Friends!</button>
+  <nav class="navbar navbar-expand-lg" style="background-color: #d190b8; color: white;">
+    <a class="navbar-brand" href="">Finder and I</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
+      aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarText">
+      <ul class="navbar-nav mr-auto">
+
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'about'%}">About</a>
+        </li>
+        {% if user.is_authenticated %}
+        <li class="nav-item active">
+          <a class="nav-link" href="{% url 'home'%}">Home <span class="sr-only">(current)</span></a>
+        </li>
+        {% if user.profile%}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+        </li>
+        {%endif%}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+        </li>
+        {% else %}
+        <li class="nav-item">
+          <form method="POST">
+            {% csrf_token %}
+            <button class="nav-link" type="submit">Login</button>
           </form>
-            <a class="nav-link" href="{% url 'friend_requests' %}">
-              <i class="fa fa-bell"></i>
-                {% if friend_requests %}
-                  {{ friend_requests|length }}
-                {% endif %}
-            </a>
-          
-          {% endif%}
-        </form>
-        
-          <!-- <span class="navbar-text">
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'register' %}">Register</a>
+        </li>
+
+        {% endif %}
+      </ul>
+      {% if user.is_authenticated %}
+      <form class="ml-auto d-flex" role="search" id="search-form" method="get" action="{% url 'search' %}">
+        <input class="form-control mr-2" type="search" placeholder="Search" name="q" aria-label="Search">
+        <button class="btn search-btn" type="submit">Find Friends!</button>
+      </form>
+      <a class="nav-link" href="{% url 'friend_requests' %}">
+        <i class="fa fa-bell"></i>
+        {% if friend_requests %}
+        {{ friend_requests|length }}
+        {% endif %}
+      </a>
+
+      {% endif%}
+      </form>
+
+      <!-- <span class="navbar-text">
             Find Your Friends!
           </span> -->
+    </div>
+  </nav>
+  <main role="main" class="container">
+    <div class="row">
+      <div class="col-md-8 mx-auto">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+          {{ message }}
         </div>
-      </nav>
-    <main role="main" class="container">
-      <div class="row">
-        <div class="col-md-8 mx-auto">
-          {% if messages %}
-            {% for message in messages %}
-              <div class="alert alert-{{ message.tags }}">
-                {{ message }}
-              </div>
-            {% endfor %}
-          {% endif %}
-          {% block content %}{% endblock %}
+        {% endfor %}
+        {% endif %}
+        {% block content %}{% endblock %}
       </div>
-    </main>
+  </main>
 
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <!-- Optional JavaScript -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
 
-  </body>
+</body>
 <style>
   .search-btn {
-        background-color: #ce5ea3;
-        color:white;
-        border: none;
-        border-radius: 10px;
-        box-shadow: 0px 2px 5px #9e9e9e;
-        cursor: pointer;
-        transition: all 0.2s ease-in-out;
-    }
-    .search-btn:hover {
-        background-color: #b74d8c;
-        box-shadow: 0px 4px 8px #9e9e9e;
-    }
+    background-color: #ce5ea3;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0px 2px 5px #9e9e9e;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .search-btn:hover {
+    background-color: #b74d8c;
+    box-shadow: 0px 4px 8px #9e9e9e;
+  }
+
   .navbar a {
     color: white !important;
   }
+
   body {
-    background-color: rgba(237, 197, 208, 0.5);                   
+    background-color: rgba(237, 197, 208, 0.5);
     color: #333333;
   }
 </style>
+
 </html>

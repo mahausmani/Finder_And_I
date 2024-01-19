@@ -3,7 +3,6 @@ from django.contrib import messages
 from .forms import UserRegisterForm, CreatePostForm
 from .models import Post, Profile, FriendRequest
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.urls import reverse
 from django.db.models.signals import post_save
@@ -12,11 +11,13 @@ from django.contrib.auth.models import User
 
 from django.shortcuts import get_object_or_404, redirect
 
+
 def send_friend_request(request, username):
     to_user = get_object_or_404(User, username=username)
     friend_request = FriendRequest(from_user=request.user, to_user=to_user)
     friend_request.save()
     return redirect('user_profile', username=username)
+
 
 def accept_friend_request(request, request_id):
     friend_request = get_object_or_404(FriendRequest, id=request_id)
@@ -26,6 +27,7 @@ def accept_friend_request(request, request_id):
     friend_request.to_user.profile.friends.add(friend_request.from_user)
     friend_request.delete()
     return redirect('home')
+
 
 def reject_friend_request(request, request_id):
     friend_request = get_object_or_404(FriendRequest, id=request_id)
@@ -44,17 +46,19 @@ def unfriend(request, username):
     friend_profile.friends.remove(request.user)
     return redirect('your_friends')
 
+
 @login_required
 def your_friends(request):
     profile = Profile.objects.get(user=request.user)
     friends = profile.friends.all()
     return render(request, 'users/your_friends.html', {'friends': friends})
-    
+
 
 @login_required
 def friend_requests(request):
     friend_requests = FriendRequest.objects.filter(to_user=request.user)
     return render(request, 'users/friend_requests.html', {'friend_requests': friend_requests})
+
 
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, **kwargs):
@@ -63,23 +67,24 @@ def create_profile(sender, instance, created, **kwargs):
 
 
 def about(request):
-    return render(request, 'users/about.html', {'title':'About'})
+    return render(request, 'users/about.html', {'title': 'About'})
+
 
 def register(request):
     if request.method == 'POST':
-        form = UserRegisterForm(request.POST, request.FILES) # add request.FILES to handle uploaded files
+        form = UserRegisterForm(request.POST, request.FILES)  # add request.FILES to handle uploaded files
         if form.is_valid():
             user = form.save()
             username = form.cleaned_data.get('username')
             messages.success(request, f'Your account has been created! You are now able to log in')
-            
+
             profile = Profile(user=user)
-            
+
             if 'profile_picture' in request.FILES:
                 profile.profile_picture = request.FILES['profile_picture']
-                
-            profile.save() # save the profile object
-            
+
+            profile.save()  # save the profile object
+
             return redirect('login')
     else:
         form = UserRegisterForm()
@@ -94,7 +99,8 @@ def post(request):
         if content:
             post = Post.objects.create(content=content, author=request.user, image=image)
             return redirect('home')
-        
+
+
 @login_required
 def profile(request):
     if request.method == 'POST':
@@ -109,9 +115,9 @@ def profile(request):
         form = CreatePostForm()
     profile = Profile.objects.get(user=request.user)
     posts = Post.objects.filter(author=request.user).order_by('-date_posted')
-    return render(request, 'users/profile.html',  {'posts': posts, 'profile': profile})
+    return render(request, 'users/profile.html', {'posts': posts, 'profile': profile})
 
-        
+
 def home(request):
     if request.method == 'POST':
         content = request.POST['content']
@@ -120,6 +126,7 @@ def home(request):
 
     posts = Post.objects.all().order_by('-date_posted')
     return render(request, 'users/home.html', {'posts': posts})
+
 
 @login_required
 def delete_post(request, post_id):
@@ -131,16 +138,15 @@ def delete_post(request, post_id):
         messages.error(request, 'You are not authorized to delete this post.')
     return redirect('profile')
 
+
 def search(request):
     query = request.GET.get('q')
     results = []
     if query is not None:
         results = Profile.objects.filter(user__username__icontains=query)
-    context = {
-        'results': results,
-        'query': query
-    }
+    context = {'results': results, 'query': query}
     return render(request, 'users/search_results.html', context)
+
 
 # @login_required
 # def user_profile(request, username):
@@ -152,6 +158,7 @@ def search(request):
 #     }
 #     return render(request, 'users/user_profile.html', context)
 
+
 @login_required
 def user_profile(request, username):
     user = get_object_or_404(User, username=username)
@@ -159,11 +166,5 @@ def user_profile(request, username):
     friend_request_sent = FriendRequest.objects.filter(from_user=request.user, to_user=user).exists()
     posts = Post.objects.filter(author=user)
 
-    context = {
-        'user_profile': user_profile,
-        'posts': posts,
-        'friend_request_sent': friend_request_sent
-    }
+    context = {'user_profile': user_profile, 'posts': posts, 'friend_request_sent': friend_request_sent}
     return render(request, 'users/user_profile.html', context)
-
-    
